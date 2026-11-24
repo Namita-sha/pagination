@@ -10,6 +10,9 @@ function App() {
   const [limit, setLimit] = useState(10)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [sort, setSort] = useState("default")
+  const [categories, setCategories] = useState([])
+  const [category, setCategory] = useState("all")
 
 
   const skip = (currentPage - 1) * limit
@@ -20,7 +23,20 @@ function App() {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`)
+        let base = "https://dummyjson.com/products"
+
+        if (category !== "all") {
+          base = `https://dummyjson.com/products/category/${category}`
+        }
+
+        let url = `${base}?limit=${limit}&skip=${skip}`
+        if (sort !== "default") {
+          const [sortBy, order] = sort.split("-")
+          url += `&sortBy=${sortBy}&order=${order}`
+        }
+
+        const res = await fetch(url)
+
         if (!res.ok) {
           throw new Error("Server error")
         }
@@ -34,7 +50,22 @@ function App() {
       }
     }
     getProducts()
-  }, [limit, skip])
+  }, [limit, skip, sort, category])
+
+
+  //to load categoey name
+  useEffect(() => {
+    async function getCategories() {
+      try {
+        const res = await fetch("https://dummyjson.com/products/category-list")
+        const data = await res.json()
+        setCategories(data)
+      } catch (err) {
+        console.log("Could not load categories")
+      }
+    }
+    getCategories()
+  }, [])
 
   //when user picks new limiit to show
   function handleLimitChange(e) {
@@ -42,10 +73,42 @@ function App() {
     setCurrentPage(1)
   }
 
+  function handleSortChange(e) {
+    setSort(e.target.value)
+    setCurrentPage(1)
+  }
+
+  function handleCategoryChange(e) {
+    setCategory(e.target.value)
+    setCurrentPage(1)
+  }
+
   return (
     <div className="container">
       <h1>Products (Page {currentPage})</h1>
 
+      <label>
+        Sort by:{" "}
+        <select value={sort} onChange={handleSortChange}>
+          <option value="default">Default</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+          <option value="title-asc">Name: A to Z</option>
+          <option value="title-desc">Name: Z to A</option>
+        </select>
+      </label>
+
+      <label>
+        Category:{" "}
+        <select value={category} onChange={handleCategoryChange}>
+          <option value="all">All</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </label>
 
       {loading && <p>Loading...</p>}
 
