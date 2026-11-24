@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import ProductCard from './components/ProductCard'
+import ProductTable from './components/ProductTable'
 import Pagination from './components/Pagination'
 import './App.css'
 
@@ -136,32 +136,27 @@ function App() {
         </select>
       </label>
 
+      {/* loading */}
+      {loading && <p>Loading...</p>}
+
+      {/* error */}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/*empty */}
+
       {!loading && !error && products.length === 0 && (
         <p>No products found.</p>
       )}
-      {loading && <p>Loading...</p>}
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {!loading && !error &&products.length > 0 &&(
-        <div className="grid">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              title={product.title}
-              price={product.price}
-              thumbnail={product.thumbnail}
-              category={product.category}
-            />
-          ))}
-        </div>
+      {/*products*/}
+      {!loading && !error && products.length > 0 && (
+         <ProductTable products={products} />
+        
       )}
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+        < Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={setCurrentPage}
+/>
       <label>
         Show:{" "}
         <select value={limit} onChange={handleLimitChange}>
