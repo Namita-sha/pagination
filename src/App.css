@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   gap: 16px;
-  list-style:none;
+  list-style: none;
   padding: 0;
   margin-top: 24px;
 }
@@ -43,4 +43,11 @@
   border: 1px solid #ccc;
   padding: 8px;
   text-align: left;
+}
+.filters {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
