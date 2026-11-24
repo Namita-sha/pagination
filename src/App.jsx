@@ -13,7 +13,8 @@ function App() {
   const [sort, setSort] = useState("default")
   const [categories, setCategories] = useState([])
   const [category, setCategory] = useState("all")
-
+  const [search, setSearch] = useState("")
+  const [searchInput, setSearchInput] = useState("")
 
   const skip = (currentPage - 1) * limit
   const totalPages = Math.ceil(total / limit)
@@ -23,13 +24,15 @@ function App() {
       setLoading(true)
       setError(null)
       try {
-        let base = "https://dummyjson.com/products"
+        let base = "https://dummyjson.com/products?"
 
-        if (category !== "all") {
-          base = `https://dummyjson.com/products/category/${category}`
+        if (search !== "") {
+          base = `https://dummyjson.com/products/search?q=${search}&`
+        } else if (category !== "all") {
+          base = `https://dummyjson.com/products/category/${category}?`
         }
 
-        let url = `${base}?limit=${limit}&skip=${skip}`
+        let url = `${base}limit=${limit}&skip=${skip}`
         if (sort !== "default") {
           const [sortBy, order] = sort.split("-")
           url += `&sortBy=${sortBy}&order=${order}`
@@ -50,7 +53,7 @@ function App() {
       }
     }
     getProducts()
-  }, [limit, skip, sort, category])
+  }, [limit, skip, sort, category, search])
 
 
   //to load categoey name
@@ -67,6 +70,15 @@ function App() {
     getCategories()
   }, [])
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput)
+      setCurrentPage(1)
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
   //when user picks new limiit to show
   function handleLimitChange(e) {
     setLimit(Number(e.target.value))
@@ -80,12 +92,26 @@ function App() {
 
   function handleCategoryChange(e) {
     setCategory(e.target.value)
+    setSearchInput("")
+    setSearch("")
     setCurrentPage(1)
+  }
+
+  function handleSearchChange(e) {
+    setSearchInput(e.target.value)
+    setCategory("all")
   }
 
   return (
     <div className="container">
       <h1>Products (Page {currentPage})</h1>
+
+      <input
+        type="text"
+        placeholder="Search products..."
+        value={searchInput}
+        onChange={handleSearchChange}
+      />
 
       <label>
         Sort by:{" "}
@@ -110,11 +136,14 @@ function App() {
         </select>
       </label>
 
+      {!loading && !error && products.length === 0 && (
+        <p>No products found.</p>
+      )}
       {loading && <p>Loading...</p>}
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {!loading && !error && (
+      {!loading && !error &&products.length > 0 &&(
         <div className="grid">
           {products.map((product) => (
             <ProductCard
