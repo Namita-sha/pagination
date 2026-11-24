@@ -8,6 +8,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [limit, setLimit] = useState(10)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
 
   const skip = (currentPage - 1) * limit
@@ -15,10 +17,21 @@ function App() {
 
   useEffect(() => {
     async function getProducts() {
-      const res = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`)
-      const data = await res.json()
-      setProducts(data.products)
-      setTotal(data.total)
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`)
+        if (!res.ok) {
+          throw new Error("Server error")
+        }
+        const data = await res.json()
+        setProducts(data.products)
+        setTotal(data.total)
+      } catch (err) {
+        setError("Could not load products. Please try again.")
+      } finally {
+        setLoading(false)
+      }
     }
     getProducts()
   }, [limit, skip])
@@ -34,16 +47,23 @@ function App() {
       <h1>Products (Page {currentPage})</h1>
 
 
-      <div className="grid">
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            title={product.title}
-            price={product.price}
-            thumbnail={product.thumbnail}
-            category={product.category} />
-        ))}
-      </div>
+      {loading && <p>Loading...</p>}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {!loading && !error && (
+        <div className="grid">
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              title={product.title}
+              price={product.price}
+              thumbnail={product.thumbnail}
+              category={product.category}
+            />
+          ))}
+        </div>
+      )}
 
       <Pagination
         currentPage={currentPage}
