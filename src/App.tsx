@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
+import type { ChangeEvent, KeyboardEvent } from "react"; 
+import type { Product, ProductsResponse } from "./types"; 
 import ProductTable from "./components/ProductTable";
 import Pagination from "./components/Pagination";
 import "./App.css";
 
 function App() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]); 
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [limit, setLimit] = useState(10);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null); 
   const [sort, setSort] = useState("default");
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<string[]>([]); 
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -43,7 +45,7 @@ function App() {
         if (!res.ok) {
           throw new Error("Server error");
         }
-        const data = await res.json();
+        const data: ProductsResponse = await res.json(); 
         setProducts(data.products);
         setTotal(data.total);
       } catch (err) {
@@ -60,7 +62,7 @@ function App() {
     async function getCategories() {
       try {
         const res = await fetch("https://dummyjson.com/products/category-list");
-        const data = await res.json();
+        const data: string[] = await res.json();
         setCategories(data);
       } catch (err) {
         console.log("Could not load categories");
@@ -79,28 +81,28 @@ function App() {
   }, [searchInput]);
 
   //when user picks new limiit to show
-  function handleLimitChange(e) {
+  function handleLimitChange(e: ChangeEvent<HTMLSelectElement>) { // CHANGED 8
     setLimit(Number(e.target.value));
     setCurrentPage(1);
   }
 
-  function handleSortChange(e) {
+  function handleSortChange(e: ChangeEvent<HTMLSelectElement>) { 
     setSort(e.target.value);
     setCurrentPage(1);
   }
 
-  function handleCategoryChange(e) {
+  function handleCategoryChange(e: ChangeEvent<HTMLSelectElement>) { 
     setCategory(e.target.value);
     setSearchInput("");
     setSearch("");
     setCurrentPage(1);
   }
 
-  function handleSearchChange(e) {
+  function handleSearchChange(e: ChangeEvent<HTMLInputElement>) { 
     setSearchInput(e.target.value);
     setCategory("all");
   }
-  function handleSearchKeyDown(e) {
+  function handleSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       setSearch(searchInput);
       setCurrentPage(1);

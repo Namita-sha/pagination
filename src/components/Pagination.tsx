@@ -1,6 +1,13 @@
 import getPageNumbers from '../utils/getPageNumbers'
 
-function Pagination({ currentPage, totalPages, onPageChange }) {
+type Props = {
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
+}
+
+function Pagination({ currentPage, totalPages, onPageChange }: Props) {
+
   const pages = getPageNumbers(currentPage, totalPages)
 
   return (

@@ -1,4 +1,10 @@
-function ProductTable({ products }) {
+import type { Product } from '../types'
+
+type Props = {
+  products: Product[]
+}
+
+function ProductTable({ products }: Props) {
   return (
     <table className="product-table">
       <thead>
